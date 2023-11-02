@@ -1,4 +1,5 @@
 const {useState, useEffect} = require('react')
+const {ToDoDetail} = require('./TodoDetail')
 
 const ToDo = () => {
   const [todo, setTodo] = useState('')
@@ -22,7 +23,7 @@ const ToDo = () => {
   }, [todo]);
 
   const addTodo = (thing) => {
-    setTodos([
+    (thing.length > 0) && setTodos([
       ...todos,
       {
         text: thing,
@@ -35,9 +36,7 @@ const ToDo = () => {
     if (typeof todos[index] === 'undefined') {
       return;
     }
-
     todos.splice(index, 1)
-
     setTodos([...todos])
   }
 
@@ -48,7 +47,6 @@ const ToDo = () => {
 
   const buyAnAppliance = async () => {
     const rsp = await fetch('https://random-data-api.com/api/v2/appliances')
-
     if (rsp.ok) {
       const data = await rsp.json()
       addTodo(`buy me a ${data.equipment} by ${data.brand}`)
@@ -57,25 +55,25 @@ const ToDo = () => {
 
   return (
   <>
-    <h1>ToDo List</h1>
+    <h1 className="text-lg md:text-2xl lg:text-4xl my-4">ToDo List</h1>
 
-    <from>
-      <input value={todo} onChange={e => setTodo(e.target.value)} type='text' placeholder='write down the thing you need to do'></input>
-      <button onClick={() => {
+    <form className="flex space-x-6" onSubmit={(e) => e.preventDefault()}>
+      <input
+        value={todo}
+        onChange={e => setTodo(e.target.value)}
+        type='text'
+        placeholder='write down any thing you want'
+        className='flex-1 border-b hover:outline-none focus:outline-none'
+      />
+      <button className='rounded border p-2' onClick={() => {
         addTodo(todo);
         setTodo('')
       }}>Add ToDo</button>
-      <button onClick={async () => buyAnAppliance()}>Buy me an appliance</button>
-    </from>
+      <button className='rounded border p-2' onClick={async () => buyAnAppliance()}>Buy me an appliance</button>
+    </form>
 
-    <ul>
-      {todos.map((todo, index) => {
-        return <li key={index}>
-          ({todo.finished ? 'v' : 'x'}) {todo.text}
-          <button onClick={() => markAs(index, !todo.finished)}>marked as {todo.finished ? 'incomplete' : 'done'}</button>
-          <button onClick={() => delTodo(index)}>delete</button>
-        </li>
-      })}
+    <ul className='my-4'>
+      {todos.map((todo, index) => <ToDoDetail key={index} index={index} todo={todo} markAs={markAs} delTodo={delTodo} />)}
     </ul>
   </>
   )
